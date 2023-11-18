@@ -3,7 +3,6 @@ pipeline {
 
     parameters {
         ARTIFACTORY_CREDENTIALS_ID = credentials('ARTIFACTORY_CREDENTIALS_ID')
-        
     }
 
     environment {
@@ -26,8 +25,10 @@ pipeline {
             steps {
                 script {
                     // 'ARTIFACTORY_CREDENTIALS_ID' is the ID of Docker credentials stored in Jenkins
-                    docker.withRegistry('https://${DOCKER_REGISTRY}', 'ARTIFACTORY_CREDENTIALS_ID') {
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                    withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        docker.withRegistry('https://${DOCKER_REGISTRY}', 'DOCKER_USERNAME', 'DOCKER_PASSWORD') {
+                            docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        }
                     }
                 }
             }
