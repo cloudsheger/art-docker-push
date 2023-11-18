@@ -38,10 +38,12 @@ pipeline {
         stage('Push image') {
             steps {
                 script {
+                  withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory_credentials')]) {
                     docker.withRegistry('https://cloudshegerlab.jfrog.io', 'artifactory_credentials') {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")
                     }
+                  }
                 }
             }
         }
