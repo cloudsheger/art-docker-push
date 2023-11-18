@@ -7,11 +7,15 @@ pipeline {
         /* Define environment variables as needed */
     }
 
+    parameters {
+        string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/art-docker-push.git', description: 'GitHub repo')
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
+    }
+
     stages {
-        stage('Clone repository') {
+        stage('Checkout SCM') {
             steps {
-                /* Let's make sure we have the repository cloned to our workspace */
-                checkout scm
+                git branch: params.GIT_BRANCH, url: params.GIT_REPO
             }
         }
 
