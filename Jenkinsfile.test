@@ -4,23 +4,28 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = "cloudshegerlab.jfrog.io:1.0"
         DOCKER_HUB_CREDENTIALS = credentials('art-api-token')
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${DOCKER_REPO}"
+        DOCKER_TAG = 'latest'
     }
 
     stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}")
+                }
+            }
+        }
 
         stage('Build and Push Docker Image') {
             steps {
-                script {
-                    // Build the Docker image from the Dockerfile
-                    sh "docker build -t $DOCKER_IMAGE_NAME ."
-
-                    // Authenticate with Docker Hub
-                    withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+             script {
+                  withCredentials([string(credentialsId: 'art-api-token', variable: 'ARTIFACTORY_CREDENTIALS')]) {
+                    docker.withRegistry('https://cloudshegerlab.jfrog.io', 'ARTIFACTORY_CREDENTIALS') {
+                        app.push("${env.BUILD_NUMBER}")
+                        app.push("latest")
                     }
-
-                    // Push the Docker image to Docker Hub
-                    sh "docker push $DOCKER_IMAGE_NAME"
+                  }
                 }
             }
         }
