@@ -21,7 +21,7 @@ pipeline {
             steps {
              script {
                   withCredentials([string(credentialsId: 'art-api-token', variable: 'ARTIFACTORY_CREDENTIALS')]) {
-                    docker.withRegistry('https://cloudshegerlab.jfrog.io', 'ARTIFACTORY_CREDENTIALS') {
+                    docker.withRegistry('https://cloudshegerlab.jfrog.io', 'art-api-token') {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")
                     }
