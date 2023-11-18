@@ -47,7 +47,7 @@ pipeline {
                  * Second, the 'latest' tag.
                  * Pushing multiple tags is cheap, as all the layers are reused. */
                 script {
-                    docker.withRegistry('https://cloudshegerlab.jfrog.io', 'artifactory_credentials') {
+                    docker.withRegistry('https://cloudshegerlab.jfrog.io', 'ARTIFACTORY_CREDENTIALS_ID') {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")
                     }
