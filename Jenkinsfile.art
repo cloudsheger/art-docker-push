@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    parameters {
+        ARTIFACTORY_CREDENTIALS_ID = credentials('ARTIFACTORY_CREDENTIALS_ID')
+        
+    }
+
     environment {
         DOCKER_REGISTRY = 'cloudshegerlab.jfrog.io'
         DOCKER_REPO = 'cloudsheger-docker/nodetest'
