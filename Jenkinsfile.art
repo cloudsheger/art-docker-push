@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        ARTIFACTORY_CREDENTIALS = credentials('art-api-token')
         DOCKER_REGISTRY = 'cloudshegerlab.jfrog.io'
         DOCKER_REPO = 'cloudsheger-docker/nodetest'
         DOCKER_IMAGE = "${DOCKER_REGISTRY}/${DOCKER_REPO}"
         DOCKER_TAG = 'latest'
+        ARTIFACTORY_CREDENTIALS = credentials('art-api-token')
     }
 
     stages {
@@ -21,11 +21,20 @@ pipeline {
         stage('Docker Login') {
             steps {
                 script {
-                    // 'ARTIFACTORY_CREDENTIALS' is the ID of Docker credentials stored in Jenkins
-                    withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        docker.withRegistry('https://${DOCKER_REGISTRY}', 'DOCKER_USERNAME', 'DOCKER_PASSWORD') {
-                            docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
-                        }
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'ARTIFACTORY_CREDENTIALS') {
+                        // 'docker-credentials-id' should be replaced with your Docker Hub credentials ID
+                        docker.login(usernameVar: 'DOCKER_USER', passwordVar: 'DOCKER_PASSWORD')
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                script {
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-credentials-id') {
+                        // 'docker-credentials-id' should be replaced with your Docker Hub credentials ID
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
                     }
                 }
             }
